@@ -83,14 +83,27 @@ class symbol_table:
         return not (symbol == self._symbol_lut[symbol])
     
 def decompress(file):
-    
+    """
+    Decompresses extracted files
+
+    Parameters
+    ----------
+    file : string
+        file to decompress.
+
+    Returns
+    -------
+    bytearray
+        decoded stream.
+
+    """
     decompressed = bytearray(4194304)                                           # decompression buffer 4 mb
     write_stack = []
     
     with open(file, 'rb') as ifile:
         delimiter = ifile.read(4)
         if delimiter != "TEN2".encode("ascii"):                                 # check delimiter
-            return -1
+            raise TypeError("not a compressed stream")
         dlen = int.from_bytes(ifile.read(4), "little")                          # read decoded length
         ifile.read(4)                                                           # don't know what those do
         compressed = ifile.read()
@@ -98,7 +111,7 @@ def decompress(file):
     ipos = 0
     opos = 0
     if dlen == 0:
-        return -1
+        raise ValueError("compressed stream length can't be zero")
     
     while True:
         sym_table = symbol_table()                                              # build new symbol table
@@ -151,11 +164,7 @@ def decompress(file):
             else:                                                               # pop byte from stack
                  dec_byte = write_stack.pop(-1)
                  
-            '''
-            Check if the decoded byte is a symbol
-            
-            '''   
-            if sym_table.is_symbol(dec_byte):                
+            if sym_table.is_symbol(dec_byte):                                   # if the byte is a symbole, add the data to the stack
                 symbol_data = sym_table.get(dec_byte)                
                 write_stack.append(symbol_data[0])
                 write_stack.append(symbol_data[1])

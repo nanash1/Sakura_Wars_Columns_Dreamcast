@@ -14,7 +14,7 @@ with open("example_decompressed.bin", "rb") as ifile:
     if decompressed != ref:
         raise ValueError("Mismatch")
     
-with open("decoded_test.bin", "wb") as ofile:    
+with open("decoded_test.pvr", "wb") as ofile:    
     ofile.write(decompressed)
     
 print("Success")
